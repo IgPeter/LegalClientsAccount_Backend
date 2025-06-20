@@ -2,6 +2,8 @@ import express from "express";
 import multer from "multer";
 import fs from "fs";
 import Kyc from "../models/kyc.js";
+import auth from "../middlewares/auth.js";
+
 const router = express();
 
 const storage = multer.diskStorage({
@@ -33,6 +35,7 @@ const uploadFields = upload.fields([
   { name: "cacCert", maxCount: 1 },
 ]);
 
+//route used by the user to upload kyc documents
 router.post(`/upload`, uploadFields, async (req, res) => {
   /*handling KYC data
    */
@@ -63,6 +66,58 @@ router.post(`/upload`, uploadFields, async (req, res) => {
     res.status(500).json({
       message: error.message || error.toString(),
     });
+  }
+});
+
+//routes used by the admin to view user's uploaded kyc documents
+router.get(`/:userId`, auth, async (req, res) => {
+  const isAdmin = req.user.isAdmin;
+  const userId = req.params.userId;
+
+  if (!isAdmin) {
+    return res.status(403).json({ message: "You can't do this" });
+  }
+
+  try {
+    const userKyc = await Kyc.find({ user: userId });
+
+    if (!userKyc) {
+      return res
+        .status(404)
+        .json({ message: "Found no kyc data for this users" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Found kyc data for this user", kycData: userKyc });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message || error.toString(),
+    });
+  }
+});
+
+//This route will be used by the admin after a period of 24h
+router.patch(`/:userId/verify`, async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const user = await find({ user: userId });
+
+    if (!user) {
+      return res.status(404).json({ message: "User does not exist" });
+    }
+
+    user.verifiedStatus = "verified";
+
+    const modifiedUser = user.save();
+
+    //activate user's account here before response
+    res.status(200).json({ message: "Kyc verified", user: modifiedUser });
+  } catch (error) {
+    console.error(error);
   }
 });
 

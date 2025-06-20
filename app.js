@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import usersRouter from "./routes/user.js";
 import walletRouter from "./routes/wallet.js";
 import kycRouter from "./routes/kyc.js";
+import adminRouter from "./routes/admin.js";
 dotenv.config();
 
 const app = express();
@@ -31,6 +32,7 @@ app.use(`/upload`, express.static(path.join(__dirname, "public", "upload")));
 app.use(`${api}/users`, usersRouter);
 app.use(`${api}/wallet`, walletRouter);
 app.use(`${api}/kyc`, kycRouter);
+app.use(`${api}/admin`, adminRouter);
 
 //Database connection
 mongoose

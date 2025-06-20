@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const KycSchema = new Schema({
-  //user: { type: mongoose.Schema.Types.ObjectId },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   cacRegNumber: { type: String, required: true },
   recentPhoto: { type: String, required: true },
   callToBarCertificate: { type: String, required: true },

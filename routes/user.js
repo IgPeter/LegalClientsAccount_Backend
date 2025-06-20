@@ -20,12 +20,13 @@ router.post(`/`, async (req, res) => {
   });
 
   try {
+    //saving user detailss
     const createdUser = user.save();
     if (!createdUser) {
       return res.status(400).json("user creation failed");
     }
 
-    //saving user detailss
+    //JSON response with user details
     res.status(201).json({
       message: "new user created successfully",
       createdUser: createdUser,
